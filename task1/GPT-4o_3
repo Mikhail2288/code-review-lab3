@@ -1,0 +1,67 @@
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <locale>
+#include <codecvt>
+
+using namespace std;
+
+// Функция для инициализации азбуки Морзе
+void initializeMorseCode(unordered_map<wchar_t, wstring>& morseCode) {
+    morseCode[L'А'] = L"·−";
+    morseCode[L'Б'] = L"−···";
+    morseCode[L'В'] = L"·−−";
+    morseCode[L'Г'] = L"−−·";
+    morseCode[L'Д'] = L"−··";
+    morseCode[L'Е'] = L"·";
+    morseCode[L'Ж'] = L"···−";
+    morseCode[L'З'] = L"−−··";
+    morseCode[L'И'] = L"··";
+    morseCode[L'Й'] = L"·−−−";
+    morseCode[L'К'] = L"−·−";
+    morseCode[L'Л'] = L"·−··";
+    morseCode[L'М'] = L"−−";
+    morseCode[L'Н'] = L"−·";
+    morseCode[L'О'] = L"−−−";
+    morseCode[L'П'] = L"·−−·";
+    morseCode[L'Р'] = L"·−·";
+    morseCode[L'С'] = L"···";
+    morseCode[L'Т'] = L"−";
+    morseCode[L'У'] = L"··−";
+    morseCode[L'Ф'] = L"··−·";
+    morseCode[L'Х'] = L"····";
+    morseCode[L'Ц'] = L"−·−·";
+    morseCode[L'Ч'] = L"−−−·";
+    morseCode[L'Ш'] = L"−−−−";
+    morseCode[L'Щ'] = L"−−·−";
+    morseCode[L'Ъ'] = L"·−−·−·";
+    morseCode[L'Ы'] = L"−·−−";
+    morseCode[L'Ь'] = L"−··−";
+    morseCode[L'Э'] = L"··−··";
+    morseCode[L'Ю'] = L"··−−";
+    morseCode[L'Я'] = L"·−·";
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian"); // Устанавливаем локаль для корректного отображения русских символов
+    unordered_map<wchar_t, wstring> morseCode;
+    initializeMorseCode(morseCode);
+
+    wstring message;
+    wcout << L"Введите сообщение (русскими буквами): ";
+    getline(wcin, message);
+
+    wcout << L"Сообщение в азбуке Морзе: ";
+    for (wchar_t c : message) {
+        if (morseCode.find(toupper(c)) != morseCode.end()) {
+            wcout << morseCode[toupper(c)] << L" "; // Преобразуем буквы в верхний регистр для поиска
+        } else if (c == L' ') {
+            wcout << L"/ "; // Пробел между словами
+        } else {
+            wcout << L"? "; // Если символ не найден в азбуке Морзе
+        }
+    }
+    wcout << endl;
+
+    return 0;
+}
