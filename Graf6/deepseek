@@ -1,0 +1,92 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <set>
+
+using namespace std;
+
+vector<int> findCities(const string& fileName, int K, int L) {
+    ifstream file(fileName);
+    if (!file.is_open()) {
+        return {-1};
+    }
+
+    int n;
+    file >> n;
+
+    // Чтение матрицы смежности
+    vector<vector<int>> matrix(n, vector<int>(n));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            file >> matrix[i][j];
+        }
+    }
+
+    // Подготовка данных для BFS
+    vector<bool> visited(n, false);
+    vector<int> distance(n, -1);
+    queue<int> q;
+
+    // Начинаем с города K (нумерация с 0 внутри программы)
+    q.push(K - 1);
+    visited[K - 1] = true;
+    distance[K - 1] = 0;
+
+    // Множество для хранения городов с расстоянием L
+    set<int> result;
+
+    // BFS для поиска кратчайших путей
+    while (!q.empty()) {
+        int current = q.front();
+        q.pop();
+
+        // Если достигли нужного количества пересадок
+        if (distance[current] == L + 1) {
+            continue;
+        }
+
+        // Перебираем всех соседей
+        for (int neighbor = 0; neighbor < n; ++neighbor) {
+            if (matrix[current][neighbor] == 1 && !visited[neighbor]) {
+                visited[neighbor] = true;
+                distance[neighbor] = distance[current] + 1;
+                q.push(neighbor);
+
+                // Если количество пересадок равно L
+                if (distance[neighbor] == L + 1) {
+                    result.insert(neighbor + 1); // Нумерация с 1
+                }
+            }
+        }
+    }
+
+    // Преобразуем множество в вектор и сортируем
+    vector<int> sortedResult(result.begin(), result.end());
+    sort(sortedResult.begin(), sortedResult.end());
+
+    return sortedResult.empty() ? vector<int>{-1} : sortedResult;
+}
+
+int main() {
+    string fileName;
+    int K, L;
+
+    cout << "Введите имя файла: ";
+    cin >> fileName;
+    cout << "Введите номер города K: ";
+    cin >> K;
+    cout << "Введите количество пересадок L: ";
+    cin >> L;
+
+    vector<int> result = findCities(fileName, K, L);
+
+    cout << "Города, достижимые за " << L << " пересадок: ";
+    for (int city : result) {
+        cout << city << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
