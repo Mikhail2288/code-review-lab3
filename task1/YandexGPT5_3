@@ -1,0 +1,35 @@
+#include <iostream>
+#include <map>
+#include <string>
+
+using namespace std;
+
+int main() {
+    // Создаем словарь для хранения азбуки Морзе
+    map<wchar_t, wstring> morse_code = {
+        {L'А', L"·−"}, {L'Б', L"−···"}, {L'В', L"·−−"}, {L'Г', L"−−·"},
+        {L'Д', L"−··"}, {L'Е', L"·"}, {L'Ж', L"···−"}, {L'З', L"−−··"},
+        {L'И', L"··"}, {L'Й', L"·−−−"}, {L'К', L"−·−"}, {L'Л', L"·−··"},
+        {L'М', L"−−"}, {L'Н', L"−·"}, {L'О', L"−−−"}, {L'П', L"·−−·"},
+        {L'Р', L"·−·"}, {L'С', L"···"}, {L'Т', L"−"}, {L'У', L"··−"},
+        {L'Ф', L"··−·"}, {L'Х', L"····"}, {L'Ц', L"−·−·"}, {L'Ч', L"−−−·"},
+        {L'Ш', L"−−−−"}, {L'Щ', L"−−·−"}, {L'Ъ', L"·−−·−·"}, {L'Ы', L"−·−−"},
+        {L'Ь', L"−··−"}, {L'Э', L"··−··"}, {L'Ю', L"··−−"}, {L'Я', L"·−·"}
+    };
+
+    // Ввод сообщения
+    wstring message;
+    wcout << L"Введите сообщение: ";
+    getline(wcin, message);
+
+    // Преобразование сообщения в азбуку Морзе
+    for (wchar_t ch : message) {
+        ch = towupper(ch);  // Приводим к верхнему регистру
+        if (morse_code.find(ch) != morse_code.end()) {
+            wcout << morse_code[ch] << L" ";
+        }
+    }
+    wcout << endl;
+
+    return 0;
+}
