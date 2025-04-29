@@ -1,0 +1,76 @@
+#include <iostream>
+#include <string>
+#include <stack>
+
+using namespace std;
+
+// Структура узла дерева
+struct Node {
+    int value; // значение
+    Node* left; // левый дочерний узел
+    Node* right; // правый дочерний узел
+
+    Node(int val) : value(val), left(nullptr), right(nullptr) {}
+};
+
+// Функция для построения дерева из префиксного выражения
+Node* buildTree(const string& expression, int& index) {
+    if (index >= expression.length()) return nullptr;
+
+    char c = expression[index];
+    index++;
+
+    if (isdigit(c)) {
+        return new Node(c - '0'); // Создаем узел с числом
+    } else {
+        Node* node = new Node(c == '+' ? -1 : c == '-' ? -2 : c == '*' ? -3 : -4); // Кодируем операции
+        node->left = buildTree(expression, index); // Рекурсивное построение левого поддерева
+        node->right = buildTree(expression, index); // Рекурсивное построение правого поддерева
+        return node;
+    }
+}
+
+// Функция для преобразования дерева
+void transformTree(Node*& root) {
+    if (!root) return;
+
+    transformTree(root->left);
+    transformTree(root->right);
+
+    // Удаляем операции сложения и вычитания
+    if (root->value == -1 || root->value == -2) {
+        // Заменяем узел на результат поддерева
+        if (root->left) {
+            root = root->left; // Выбор одного операнда вместо операции
+            // Освобождение правого поддерева
+            delete root->right;
+            root->right = nullptr;
+        }
+    }
+}
+
+// Функция для вывода дерева (в симметричном порядке)
+void printTree(Node* root) {
+    if (!root) return;
+    printTree(root->left);
+    cout << root->value << " ";
+    printTree(root->right);
+}
+
+// Основная функция
+int main() {
+    string expression;
+    cout << "Введите префиксное арифметическое выражение: ";
+    getline(cin, expression);
+
+    int index = 0;
+    Node* root = buildTree(expression, index);
+    
+    transformTree(root); // Преобразовать дерево
+
+    cout << "Преобразованное дерево: ";
+    printTree(root);
+    cout << endl;
+
+    return 0;
+}
