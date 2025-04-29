@@ -1,0 +1,72 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+void findCitiesWithTransfers(const vector<vector<int>>& adjacencyMatrix, int startCity, int transfers) {
+    int n = adjacencyMatrix.size();
+    vector<int> reachableCities;
+
+    // BFS для поиска городов с L пересадками
+    queue<pair<int, int>> q; // Пара (город, количество пересадок)
+    q.push({startCity, 0});
+
+    while (!q.empty()) {
+        auto [currentCity, currentTransfers] = q.front();
+        q.pop();
+
+        // Если достигли нужного количества пересадок
+        if (currentTransfers == transfers) {
+            reachableCities.push_back(currentCity + 1); // Добавляем в результат (нумерация с 1)
+            continue; // Не продолжаем дальше из этого города
+        }
+
+        // Проверяем соседние города
+        for (int nextCity = 0; nextCity < n; ++nextCity) {
+            if (adjacencyMatrix[currentCity][nextCity] == 1) {
+                q.push({nextCity, currentTransfers + 1});
+            }
+        }
+    }
+
+    // Сортируем и выводим результат
+    sort(reachableCities.begin(), reachableCities.end());
+    if (reachableCities.empty()) {
+        cout << -1 << endl; // Если городов нет
+    } else {
+        for (int city : reachableCities) {
+            cout << city << " ";
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    ifstream inputFile("FileName.txt");
+    if (!inputFile) {
+        cerr << "Не удалось открыть файл!" << endl;
+        return 1;
+    }
+
+    int n; // Количество городов
+    inputFile >> n;
+
+    vector<vector<int>> adjacencyMatrix(n, vector<int>(n));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            inputFile >> adjacencyMatrix[i][j];
+        }
+    }
+
+    int K, L;
+    cout << "Введите номер города K (1-" << n << ") и количество пересадок L: ";
+    cin >> K >> L;
+
+    // Понижаем K на 1 для использования в векторе (нумерация с 0)
+    findCitiesWithTransfers(adjacencyMatrix, K - 1, L);
+
+    return 0;
+}
