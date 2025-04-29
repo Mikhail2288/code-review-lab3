@@ -1,0 +1,50 @@
+#include <iostream>
+#include <unordered_map>
+#include <string>
+#include <cwctype>
+#include <locale>
+#include <codecvt>
+
+using namespace std;
+
+// Словарь азбуки Морзе для русских букв (используем wchar_t)
+unordered_map<wchar_t, wstring> morseCode = {
+    {L'А', L"·−"}, {L'Б', L"−···"}, {L'В', L"·−−"}, {L'Г', L"−−·"},
+    {L'Д', L"−··"}, {L'Е', L"·"}, {L'Ж', L"···−"}, {L'З', L"−−··"},
+    {L'И', L"··"}, {L'Й', L"·−−−"}, {L'К', L"−·−"}, {L'Л', L"·−··"},
+    {L'М', L"−−"}, {L'Н', L"−·"}, {L'О', L"−−−"}, {L'П', L"·−−·"},
+    {L'Р', L"·−·"}, {L'С', L"···"}, {L'Т', L"−"}, {L'У', L"··−"},
+    {L'Ф', L"··−·"}, {L'Х', L"····"}, {L'Ц', L"−·−·"}, {L'Ч', L"−−−·"},
+    {L'Ш', L"−−−−"}, {L'Щ', L"−−·−"}, {L'Ъ', L"·−−·−·"}, {L'Ы', L"−·−−"},
+    {L'Ь', L"−··−"}, {L'Э', L"··−··"}, {L'Ю', L"··−−"}, {L'Я', L"·−·−"},
+    {L' ', L" "} // пробел
+};
+
+wstring textToMorse(const wstring& text) {
+    wstring morse;
+    for (wchar_t c : text) {
+        // Преобразуем символ в верхний регистр
+        wchar_t upperC = towupper(c);
+        // Проверяем, есть ли символ в нашем словаре
+        if (morseCode.find(upperC) != morseCode.end()) {
+            morse += morseCode[upperC] + L" ";
+        }
+    }
+    return morse;
+}
+
+int main() {
+    // Устанавливаем локаль для поддержки широких символов и русского языка
+    locale::global(locale(""));
+    wcout.imbue(locale());
+    wcin.imbue(locale());
+
+    wcout << L"Введите сообщение для преобразования в азбуку Морзе: ";
+    wstring userInput;
+    getline(wcin, userInput);
+    
+    wstring morse = textToMorse(userInput);
+    wcout << L"Сообщение в азбуке Морзе: " << morse << endl;
+    
+    return 0;
+}
