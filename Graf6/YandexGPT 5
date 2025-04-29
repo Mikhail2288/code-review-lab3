@@ -1,0 +1,104 @@
+Чпо, [30.04.2025 1:25]
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+// Структура для хранения информации о пути
+struct Path {
+    int city;     // текущий город
+    int stops;    // количество пересадок
+    int pathLen;  // длина пути
+    
+    Path(int c, int s, int p) : city(c), stops(s), pathLen(p) {}
+};
+
+// Функция для чтения матрицы из файла
+vector<vector<int>> readMatrix(const string& filename, int& n) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cout << "Ошибка открытия файла" << endl;
+        exit(1);
+    }
+    
+    file >> n;
+    vector<vector<int>> matrix(n, vector<int>(n));
+    
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            file >> matrix[i][j];
+        }
+    }
+    
+    return matrix;
+}
+
+// Основная функция решения
+vector<int> findCitiesWithLStops(const vector<vector<int>>& matrix, int k, int l) {
+    int n = matrix.size();
+    vector<bool> visited(n, false);
+    queue<Path> q;
+    vector<int> result;
+    
+    // Начинаем поиск с исходного города
+    q.push(Path(k-1, 0, 0));
+    visited[k-1] = true;
+    
+    while(!q.empty()) {
+        Path current = q.front();
+        q.pop();
+        
+        // Если достигли нужного количества пересадок
+        if(current.stops == l) {
+            result.push_back(current.city + 1);
+            continue;
+        }
+        
+        // Проверяем все соседние города
+        for(int i = 0; i < n; i++) {
+            if(matrix[current.city][i] == 1 && !visited[i]) {
+                visited[i] = true;
+                q.push(Path(i, current.stops + 1, current.pathLen + 1));
+            }
+        }
+    }
+    
+    // Если не нашли подходящих городов
+    if(result.empty())
+        return {-1};
+    
+    // Сортируем результат
+    sort(result.begin(), result.end());
+    return result;
+}
+
+int main() {
+    string filename = "input.txt";
+    int n, k, l;
+    
+    cout << "Введите номер исходного города (K): ";
+    cin >> k;
+    cout << "Введите количество пересадок (L): ";
+    cin >> l;
+    
+    vector<vector<int>> matrix = readMatrix(filename, n);
+    vector<int> result = findCitiesWithLStops(matrix, k, l);
+    
+    // Выводим результат
+    if(result[0] == -1) {
+        cout << "-1" << endl;
+    } else {
+        for(int city : result) {
+            cout << city << " ";
+        }
+        cout << endl;
+    }
+    
+    return 0;
+}
+
+Миша, [30.04.2025 1:25]
+спс ко!
