@@ -1,0 +1,56 @@
+#include <iostream>
+#include <map>
+#include <string>
+#include <locale>
+#include <codecvt>
+
+int main() {
+    // Устанавливаем русскую локаль для корректной работы с кириллицей
+    setlocale(LC_ALL, "Russian");
+    
+    // Создаем словарь для хранения кодов Морзе для русских букв
+    std::map<wchar_t, std::string> morseCode = {
+        {L'А', ".-"}, {L'Б', "-..."}, {L'В', ".--"}, {L'Г', "--."},
+        {L'Д', "-.."}, {L'Е', "."}, {L'Ж', "...-"}, {L'З', "--.."},
+        {L'И', ".."}, {L'Й', ".---"}, {L'К', "-.-"}, {L'Л', ".-.."},
+        {L'М', "--"}, {L'Н', "-."}, {L'О', "---"}, {L'П', ".--."}, 
+        {L'Р', ".-."}, {L'С', "..."}, {L'Т', "-"}, {L'У', "..-"},
+        {L'Ф', "..-."}, {L'Х', "...."}, {L'Ц', "-.-."}, {L'Ч', "---."},
+        {L'Ш', "----"}, {L'Щ', "--.-"}, {L'Ъ', ".--.-."}, {L'Ы', "-.--"},
+        {L'Ь', "-..-"}, {L'Э', "..-.."}, {L'Ю', "..--"}, {L'Я', ".-.-"},
+        {L' ', " "}  // Пробел для разделения слов
+    };
+    
+    // Просим пользователя ввести сообщение
+    std::wcout << L"Введите сообщение на русском языке: ";
+    std::wstring message;
+    std::getline(std::wcin, message);
+    
+    std::wcout << L"Сообщение в азбуке Морзе:\n";
+    
+    // Преобразуем сообщение в верхний регистр
+    for (auto &c : message) {
+        c = std::towupper(c);
+    }
+    
+    // Преобразуем сообщение в азбуку Морзе
+    for (size_t i = 0; i < message.length(); i++) {
+        wchar_t c = message[i];
+        
+        // Проверяем, есть ли символ в словаре
+        if (morseCode.find(c) != morseCode.end()) {
+            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+            std::wstring wstr = converter.from_bytes(morseCode[c]);
+            std::wcout << wstr;
+            
+            // Добавляем пробел между символами, но не после последнего
+            if (i < message.length() - 1 && c != L' ') {
+                std::wcout << L" ";
+            }
+        }
+    }
+    
+    std::wcout << std::endl;
+    
+    return 0;
+}
