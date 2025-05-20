@@ -1,0 +1,171 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cctype>
+
+// Структура узла дерева
+struct TreeNode {
+    int value;          // Значение узла (операция или операнд)
+    TreeNode* left;     // Левый потомок
+    TreeNode* right;    // Правый потомок
+    
+    TreeNode(int val) : value(val), left(nullptr), right(nullptr) {}
+};
+
+// Функция для построения дерева из префиксного выражения
+TreeNode* buildTree(std::string& expr, int& pos) {
+    if (pos >= expr.length())
+        return nullptr;
+    
+    char current = expr[pos++];
+    
+    // Пропускаем пробелы
+    while (current == ' ' && pos < expr.length())
+        current = expr[pos++];
+    
+    if (current == '+') {
+        TreeNode* node = new TreeNode(-1);
+        node->left = buildTree(expr, pos);
+        node->right = buildTree(expr, pos);
+        return node;
+    } else if (current == '-') {
+        TreeNode* node = new TreeNode(-2);
+        node->left = buildTree(expr, pos);
+        node->right = buildTree(expr, pos);
+        return node;
+    } else if (current == '*') {
+        TreeNode* node = new TreeNode(-3);
+        node->left = buildTree(expr, pos);
+        node->right = buildTree(expr, pos);
+        return node;
+    } else if (current == '/') {
+        TreeNode* node = new TreeNode(-4);
+        node->left = buildTree(expr, pos);
+        node->right = buildTree(expr, pos);
+        return node;
+    } else if (isdigit(current)) {
+        return new TreeNode(current - '0');
+    }
+    
+    return nullptr;
+}
+
+// Вычисление значения выражения
+int evaluate(TreeNode* root) {
+    if (!root)
+        return 0;
+    
+    // Если это операнд, возвращаем его значение
+    if (root->value >= 0)
+        return root->value;
+    
+    int leftVal = evaluate(root->left);
+    int rightVal = evaluate(root->right);
+    
+    switch (root->value) {
+        case -1: return leftVal + rightVal;  // Сложение
+        case -2: return leftVal - rightVal;  // Вычитание
+        case -3: return leftVal * rightVal;  // Умножение
+        case -4: 
+            if (rightVal != 0) return leftVal / rightVal;  // Деление
+            else {
+                std::cerr << "Деление на ноль!" << std::endl;
+                return 0;
+            }
+        default: return 0;
+    }
+}
+
+// Преобразование дерева: замена поддеревьев с + и - их значениями
+TreeNode* transformTree(TreeNode* root) {
+    if (!root)
+        return nullptr;
+    
+    // Если это операнд, возвращаем его
+    if (root->value >= 0)
+        return root;
+    
+    // Рекурсивно преобразуем левое и правое поддерево
+    root->left = transformTree(root->left);
+    root->right = transformTree(root->right);
+    
+    // Если операция + или -, заменяем поддерево его значением
+    if (root->value == -1 || root->value == -2) {
+        int value = evaluate(root);
+        delete root->left;
+        delete root->right;
+        root->value = value;
+        root->left = nullptr;
+        root->right = nullptr;
+    }
+    
+    return root;
+}
+
+// Вывод дерева (для отладки)
+void printTree(TreeNode* root, int level = 0) {
+    if (!root)
+        return;
+    
+    for (int i = 0; i < level; i++)
+        std::cout << "  ";
+    
+    if (root->value < 0) {
+        char op;
+        switch (root->value) {
+            case -1: op = '+'; break;
+            case -2: op = '-'; break;
+            case -3: op = '*'; break;
+            case -4: op = '/'; break;
+            default: op = '?'; break;
+        }
+        std::cout << op << std::endl;
+    } else {
+        std::cout << root->value << std::endl;
+    }
+    
+    printTree(root->left, level + 1);
+    printTree(root->right, level + 1);
+}
+
+// Удаление дерева из памяти
+void deleteTree(TreeNode* root) {
+    if (!root)
+        return;
+    
+    deleteTree(root->left);
+    deleteTree(root->right);
+    delete root;
+}
+
+int main() {
+    std::string filename = "filename.txt";  // Имя файла с выражением
+    std::ifstream file(filename);
+    
+    if (!file.is_open()) {
+        std::cerr << "Не удалось открыть файл: " << filename << std::endl;
+        return 1;
+    }
+    
+    std::string expr;
+    std::getline(file, expr);
+    file.close();
+    
+    int pos = 0;
+    TreeNode* root = buildTree(expr, pos);
+    
+    std::cout << "Исходное дерево:" << std::endl;
+    printTree(root);
+    
+    TreeNode* transformedRoot = transformTree(root);
+    
+    std::cout << "Преобразованное дерево:" << std::endl;
+    printTree(transformedRoot);
+    
+    std::cout << "Указатель на корень преобразованного дерева: " 
+              << transformedRoot << std::endl;
+    
+    deleteTree(transformedRoot);
+    
+    return 0;
+}
